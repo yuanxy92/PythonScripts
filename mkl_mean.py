@@ -5,10 +5,10 @@ from glob import glob
 from tqdm import tqdm
 
 def adjust_brightness_hsv(img, brightness_scale=0.5):
-    hsv = cv2.cvtColor((img * 255).astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float32)
+    hsv = cv2.cvtColor((img * 255).astype(np.uint8), cv2.COLOR_BGR2HSV).astype(np.float32)
     hsv[..., 2] *= brightness_scale
     hsv[..., 2] = np.clip(hsv[..., 2], 0, 255)
-    adjusted = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB).astype(np.float32) / 255.0
+    adjusted = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR).astype(np.float32) / 255.0
     return adjusted
 
 
@@ -52,7 +52,7 @@ def adjust_brightness_hsv(img, brightness_scale=0.5):
 #     cov = np.cov(all_pixels.T)
 #     return mean, cov
 
-def compute_statistics_with_pairs(input_paths, gt_paths, sample_per_image=5000, brightness_scale=None, region_size=380):
+def compute_statistics_with_pairs(input_paths, gt_paths, sample_per_image=5000, brightness_scale=None, region_size=340):
     assert len(input_paths) == len(gt_paths), "Input and GT image lists must be the same length."
 
     all_input = []
@@ -148,11 +148,8 @@ def main(lr_dir, gt_dir, output_dir):
 
     # Step 1: Compute color statistics
     print("Computing statistics...")
-    # mean_lr, cov_lr = compute_statistics(lr_paths)
-    # print(mean_lr)
-    # mean_gt, cov_gt = compute_statistics(gt_paths,brightness_scale=0.8)
-    # print(mean_gt)
     mean_lr,cov_lr,mean_gt,cov_gt=compute_statistics_with_pairs(lr_paths,gt_paths,brightness_scale=0.8)
+    # mean_lr,cov_lr,mean_gt,cov_gt=compute_statistics_with_pairs(lr_paths,gt_paths)
     
 
     # Step 2: Compute MKL transform
@@ -179,5 +176,5 @@ if __name__ == "__main__":
 
     # main(args.lr_dir, args.gt_dir, args.output_dir)
     main('E:/Data/Metalens/Journal/lr_metalens_3mm_corrected', 
-        'E:/Data/Metalens/Journal/hr_images512/hr_images512', 
+        'E:/Data/Metalens/Journal/hr_images512_blur/hr_images512_blur', 
         'E:/Data/Metalens/Journal/lr_metalens_3mm_corrected_color')
